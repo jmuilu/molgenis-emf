@@ -1,0 +1,23 @@
+*.class
+*.log
+# sbt specific
+tmp/
+junk/
+dist/
+target/
+lib_managed/
+src_managed/
+src_generated/
+project/boot/
+project/plugins/project/
+*.conf
+
+# Scala-IDE specific
+.scala_dependencies
+
+# Eclipse specific
+.project
+.classpath
+.cache
+.DS_Store
+.swp
