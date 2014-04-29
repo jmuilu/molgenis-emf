@@ -1,4 +1,4 @@
-MolgenisUML
+Molgenis-EMF
 ===========
 
-MolgenisUML
+Molgenis-EMF
