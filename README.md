@@ -9,7 +9,8 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 - Many-to-many relationships are implemented without intermediating class
 - All one-to-many associations are directional. Many-to-many relationships are bi-directional leading to two associations in Ecore.
 - Role name in associations is taken from the field's label. In the many-to-many case, the role name of opposite association is derived from  getMrefLocalid and label. 
-- Models can be visualized using e.g. [EMF to Graphviz](http://marketplace.eclipse.org/content/emf-graphviz-emf2gv) and [TextUML](http://marketplace.eclipse.org/content/textuml-toolkit) Eclipse add-ons.  
+- Models can be visualized using e.g. [EMF to Graphviz](http://marketplace.eclipse.org/content/emf-graphviz-emf2gv) and [TextUML](http://marketplace.eclipse.org/content/textuml-toolkit) Eclipse add-ons. 
+- XML and JSON serializations are supported. Examples can be generated using using Maven's test task (mvn test) 
 
 ## Ecore example
 [Molgenis DSL](molgenis-emf/src/test/resources/simple_model/molgenis_db.xml):
