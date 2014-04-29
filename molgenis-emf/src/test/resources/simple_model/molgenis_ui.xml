@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		DOCTYPE molgenis PUBLIC "MOLGENIS 1.0"
+		"http://molgenis.sourceforge.net/dtd/molgenis_v_1_0.dtd"
+	-->
+<molgenis name="example">
+	<menu name="topmenu" position="top_right" startwith="Login">
+<!-- 		<menu name="Main" position="left">
+			<form name="Experiment" entity="Experiment">
+				<menu name="ExperimentMenu" position="top_left">
+					<form name="Samples" entity="Sample" view="list" />
+					<form name="Traits" entity="Trait" view="list" />
+					<form name="Measurements" entity="Measurement">
+						<form name="Data" entity="Data" />
+					</form>
+				</menu>
+			</form>
+			<menu name="pluginexamples" label="Plugin examples">
+				<plugin name="Google" type="plugin.examples.portal.PortalIntegrationPlugin" />
+				<plugin name="HelloWorld" type="plugin.examples.helloworld.HelloWorldPlugin" />
+				<plugin name="ExperimentQuery" type="plugin.examples.dbquery.ExperimentQueryPlugin" />
+				<plugin name="WizardPlugin" type="plugin.examples.wizard.WizardPlugin" />
+				<plugin name="FileServingPlugin" type="plugin.examples.file.FileServingPlugin"/>
+			</menu>
+			<plugin name="MartView" type="plugin.query.view.MartView"/>
+			
+				<report name="alldata"
+				fields="sample.name,trait.name,measurement.value"
+				labels="sample,trait,value" /> <report name="bigvalues"> <output
+				name="sample.name" /> <output name="trait.name" /> <output
+				name="measurement.value" /> <fiter>measurement.value &gt; 10</fiter>
+				</report> <report name="countsamples"
+				fields="investigation.name,count(sample.id)"/>
+			
+			plugin name="martview" type="plugin.query.view.MartView"/
+		</menu>
+		<plugin name="model_documentation" label="Documentation"  type="plugin.topmenu.DocumentationScreen"/>
+		<plugin name="APIs" label="Programming Interfaces" type="plugin.topmenu.ApiScreen"/>
+		<plugin name="Login" label="Login" type="plugin.topmenu.LoginScreen"/>
+	</menu> -->
+</molgenis>
