@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.EMap;
@@ -201,4 +203,24 @@ public class MolgenisToUmlTest
 		
 
 	}
+	
+	@Test(dependsOnMethods = { "convert2Uml2AndValidate" })
+	public void convertToMolgenisJAXBModel() {
+		UMLEcoreUtil uml2 = new UMLEcoreUtil();
+		try
+		{
+			Package pkg = uml2.loadUMLModel("out_dir/example.uml");
+			UMLToMolgenis mol = UMLToMolgenis.createInstance(pkg); 
+			org.molgenis.model.jaxb.Model m = mol.toMolgenisModel();
+			assertEquals(m.getName(),"example");
+			assertEquals(m.getEntities().size(),7);
+			UMLToMolgenis.writeModel("out_dir/example.xml", m);
+		} catch (Exception e)
+		{
+			assert false: e.getMessage();
+		}
+
+
+	}
+
 }

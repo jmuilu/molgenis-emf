@@ -71,7 +71,7 @@ public class UMLToMolgenis
 		ecorePackage = coll.iterator().next();
 	}
 
-	public UMLToMolgenis createInstance(final Package pkg)
+	public static UMLToMolgenis createInstance(final Package pkg)
 	{
 		return new UMLToMolgenis(pkg);
 	}
