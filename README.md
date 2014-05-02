@@ -25,8 +25,9 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 |description| eClass.EAnnotations|
 |label|-|
 |unique|TBD|
+|default|TBD|
 |autoid|-|
-|nillable true/false|minCardinality=0/1 and maxCardinality=1|
+|nillable|!isRequired|
 |type|type|
 |**Field (xref)**|**EReference**|
 |name|name|
@@ -36,7 +37,7 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 |xref_field|-|
 |entity|end1Class|
 |xref_entity|end2Class|
-|nillable true/false|minCardinality=0/1 and maxCardinality=1|
+|nillable|!isRequired|
 |**Field (mref)**|**EReference (with eOpposite)**|
 |name|name|
 |description|EAnnotations|
@@ -45,6 +46,8 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 |xref_field|-|
 |entity|end1Class|
 |xref_entity|end2Class|
+|nillable|!isRequired|
+|cardinality|TBD|
 |-|eOpposite|
 
 
