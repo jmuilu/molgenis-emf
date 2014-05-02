@@ -5,7 +5,6 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 
 ## MolgenisToUML/Ecore
 ### Notes
-- Molgenis internals (e.g. __Type attribute) should be removed
 - Many-to-many relationships are implemented without intermediating class
 - All one-to-many associations are directional. Many-to-many relationships are bi-directional leading to two associations in Ecore.
 - Role name in associations is taken from the field's label. In the many-to-many case, the role name of opposite association is derived from  getMrefLocalid and label. 
