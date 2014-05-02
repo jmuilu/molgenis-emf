@@ -10,7 +10,43 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 - All one-to-many associations are directional. Many-to-many relationships are bi-directional leading to two associations in Ecore.
 - Role name in associations is taken from the field's label. In the many-to-many case, the role name of opposite association is derived from  getMrefLocalid and label. 
 - Models can be visualized using e.g. [EMF to Graphviz](http://marketplace.eclipse.org/content/emf-graphviz-emf2gv) and [TextUML](http://marketplace.eclipse.org/content/textuml-toolkit) Eclipse add-ons. 
-- XML and JSON serializations are supported. Examples can be generated using using Maven's test task (mvn test) 
+- XML and JSON serializations are supported. Examples can be generated using using Maven's test task (mvn test)
+
+## Molgenis - Ecore mappings
+|Molgenis| Ecore|
+|--------|-------|
+|**Entity**|**eClass**|
+|name| name |
+|description|EAnnotations|
+|abstract (bool)|abstract (bool)|
+|xref_label| -|
+|**Field (attrib)**|**EAttribute**|
+|name|name|
+|description| eClass.EAnnotations|
+|label|-|
+|unique|TBD|
+|autoid|-|
+|nillable true/false|minCardinality=0/1 and maxCardinality=1|
+|type|type|
+|**Field (xref)**|**EReference**|
+|name|name|
+|description|EAnnotations|
+|label|-|
+|xref_label|-|
+|xref_field|-|
+|entity|end1Class|
+|xref_entity|end2Class|
+|nillable true/false|minCardinality=0/1 and maxCardinality=1|
+|**Field (mref)**|**EReference (with eOpposite)**|
+|name|name|
+|description|EAnnotations|
+|label|-|
+|xref_label|-|
+|xref_field|-|
+|entity|end1Class|
+|xref_entity|end2Class|
+|-|eOpposite|
+
 
 ## Ecore example
 [Molgenis DSL](molgenis-emf/src/test/resources/simple_model/molgenis_db.xml):
