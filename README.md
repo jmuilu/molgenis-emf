@@ -23,7 +23,7 @@ Tools for converting [Molgenis](http://molgenis.org) models to UML/Ecore XMI and
 |name|name|
 |description| eClass.EAnnotations|
 |label|-|
-|unique|TBD|
+|unique|unique|
 |default|TBD|
 |autoid|-|
 |nillable|!isRequired|
