@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.mapping.ecore2xml.Ecore2XMLPackage.Literals;
 import org.eclipse.uml2.uml.AggregationKind;
 import org.eclipse.uml2.uml.Association;
 import org.eclipse.uml2.uml.Class;
@@ -21,11 +25,14 @@ import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Generalization;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.InterfaceRealization;
+import org.eclipse.uml2.uml.LiteralInteger;
 import org.eclipse.uml2.uml.LiteralUnlimitedNatural;
 import org.eclipse.uml2.uml.PrimitiveType;
 import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.StructuralFeature;
+import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.ValueSpecification;
 import org.molgenis.fieldtypes.EnumField;
 import org.molgenis.fieldtypes.MrefField;
 import org.molgenis.fieldtypes.XrefField;
@@ -45,8 +52,6 @@ import org.molgenis.model.elements.Model;
  *   - http://www.se.eecs.uni-kassel.de/fileadmin/se/courses/SE207/EValidatorAdapter.java
  *   How to handle possible problems like overlapping field realized from different interfaces ?
  *   
- *   ks luodaanko turhia Enum objekteja... reuse existing
- *   tulevatko assosiaatiot mos kentiksi. ls uml xmi
  */
 public class MolgenisToUml
 {
@@ -55,48 +60,54 @@ public class MolgenisToUml
 	private HashMap<String, Classifier> clzMap = new HashMap<String, Classifier>();
 	private UMLEcoreUtil uml2 = new UMLEcoreUtil();
 	private Model molgenisModel;
-	
-	
-	private  MolgenisToUml( Model model) {
+
+	private MolgenisToUml(Model model)
+	{
 		super();
 		molgenisModel = model;
 	}
-	
-	public static MolgenisToUml createInstance( Model model) { 
-		MolgenisToUml wrapper = new MolgenisToUml(model);			
+
+	public static MolgenisToUml createInstance(Model model)
+	{
+		MolgenisToUml wrapper = new MolgenisToUml(model);
 		return wrapper;
 	}
+
 	/*
 	 * Convert Molgnis model to UML Model assumptions: - Molgenis support only
 	 * single inheritance - Can implement more than one interfaces
 	 */
-	
-	public UMLEcoreUtil getUML2Util( ) { 
-		return uml2;		
+
+	public UMLEcoreUtil getUML2Util()
+	{
+		return uml2;
 	}
 
 	/*
 	 * Returns new instance of UML model
 	 */
-	public org.eclipse.uml2.uml.Model getUML2Model( ) { 
-		return toUMLModel(molgenisModel);		
+	public org.eclipse.uml2.uml.Model getUML2Model()
+	{
+		return toUMLModel(molgenisModel);
 	}
 
 	/*
 	 * Returns new instance of UML model
 	 */
-	public EPackage getAsEcorePackage( ) { 
-		org.eclipse.uml2.uml.Model m =  toUMLModel(molgenisModel);	
+	public EPackage getAsEcorePackage()
+	{
+		org.eclipse.uml2.uml.Model m = toUMLModel(molgenisModel);
 		Collection<EPackage> x = uml2.convertToEcorePackageCollection(m);
-		assert( !x.isEmpty());
+		assert (!x.isEmpty());
 		return x.iterator().next();
 	}
 
-	public Model getMolgenisModel( ) { 
-		return molgenisModel;		
+	public Model getMolgenisModel()
+	{
+		return molgenisModel;
 	}
-	
-	private org.eclipse.uml2.uml.Model toUMLModel( final Model model)
+
+	private org.eclipse.uml2.uml.Model toUMLModel(final Model model)
 	{
 
 		Vector<Entity> entities = model.getEntities();
@@ -114,12 +125,12 @@ public class MolgenisToUml
 		return pkg;
 	}
 
-	protected boolean isInterface( final Entity e)
+	protected boolean isInterface(final Entity e)
 	{
 		return e.isAbstract();
 	}
 
-	protected Classifier getClass( final org.eclipse.uml2.uml.Package container, final Entity entity)
+	protected Classifier getClass(final org.eclipse.uml2.uml.Package container, final Entity entity)
 	{
 		if (clzMap.containsKey(uniqueName(entity)))
 		{
@@ -131,65 +142,91 @@ public class MolgenisToUml
 				logger.debug("Entity " + entity.getName() + "  is interface");
 				Classifier cls = uml2.createInterface(container, entity.getName());
 				clzMap.put(uniqueName(entity), cls);
+				annotate(cls, entity);
+				logger.debug("ANNOTATION: " + entity.getName() + " " + toString(cls.getEAnnotations()));
+				annotate(cls, entity);
 				return cls;
 			} else
 			{
 				Classifier cls = uml2.createClass(container, entity.getName(), entity.isAbstract());
 				clzMap.put(uniqueName(entity), cls);
+				annotate(cls, entity);
 				return cls;
 			}
 		}
 	}
 
-	protected String makeUrl( final String url)
+	protected String makeUrl(final String url)
 	{
 		try
 		{
-			return URLDecoder.decode("http://example.org/"+url, "UTF-8");
+			return URLDecoder.decode("http://example.org/" + url, "UTF-8");
 		} catch (UnsupportedEncodingException e)
 		{
-			logger.fatal("Cannot encode url for "+url);
+			logger.fatal("Cannot encode url for " + url);
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected void annotate( final Classifier feature, final Entity entity)
+	protected String toString(EList<EAnnotation> annos)
 	{
-		if ( entity.getDescription().equals("")) return;
-		EAnnotation anno = feature.createEAnnotation(makeUrl( entity.getName())); // TODO:																									// annotations
+		String str = "";
+		for (EAnnotation eAnnotation : annos)
+		{
+			EMap<String, String> details = eAnnotation.getDetails();
+			for (Iterator iterator = details.iterator(); iterator.hasNext();)
+			{
+				Entry<String, String> entry = (Entry<String, String>) iterator.next();
+				str= str + entry.getKey()+": "+entry.getValue();
+			}
+		}
+		return str;
+	}
+
+	protected void annotate(final Classifier feature, final Entity entity)
+	{
+		if (entity.getDescription().equals(""))
+			return;
+		EAnnotation anno = feature.createEAnnotation(makeUrl(entity.getName())); // TODO:
+																					// //
+																					// annotations
 		anno.getDetails().put("body", entity.getDescription());
 	}
 
-	protected void annotate( final org.eclipse.uml2.uml.Model feature, final Model model)
+	protected void annotate(final org.eclipse.uml2.uml.Model feature, final Model model)
 	{
-		if ( model.getDBDescription().equals("")) return;
-		EAnnotation anno = feature.createEAnnotation(makeUrl(model.getName())); // TODO:																								// annotations
+		if (model.getDBDescription().equals(""))
+			return;
+		EAnnotation anno = feature.createEAnnotation(makeUrl(model.getName())); // TODO:
+																				// //
+																				// annotations
 		anno.getDetails().put("body", model.getDBDescription());
 	}
 
-	protected void annotate( final Association feature, final Field field)
+	protected void annotate(final Association feature, final Field field)
 	{
-		if ( field.getDescription().equals("")) return;
-		EAnnotation anno = feature.createEAnnotation( makeUrl( field.getName())); // TODO:																								// annotations
+		if (field.getDescription().equals(""))
+			return;
+		EAnnotation anno = feature.createEAnnotation(makeUrl(field.getName())); // TODO:
+																				// //
+																				// annotations
 		anno.getDetails().put("body", field.getDescription());
 	}
 
-	protected void annotate( final StructuralFeature feature, final Field field)
+	protected void annotate(final StructuralFeature feature, final Field field)
 	{
-		if ( field.getDescription().equals("")) return;
-		EAnnotation anno = feature.createEAnnotation(makeUrl(field.getName())); // TODO:																								// annotations
+		if (field.getDescription().equals(""))
+			return;
+		EAnnotation anno = feature.createEAnnotation(makeUrl(field.getName())); // TODO:
+																				// //
+																				// annotations
 		anno.getDetails().put("body", field.getDescription());
 	}
 
-	protected Classifier toUMLClass( final org.eclipse.uml2.uml.Package container, final Entity entity)
+	protected Classifier toUMLClass(final org.eclipse.uml2.uml.Package container, final Entity entity)
 	{
 
 		Classifier cls = getClass(container, entity);
-
-		if (hasText(entity.getDescription()))
-		{
-			annotate(cls, entity);
-		}
 		if (entity.hasAncestor())
 		{
 			Entity parent = entity.getAncestor();
@@ -241,13 +278,16 @@ public class MolgenisToUml
 			for (Iterator iterator = fields.iterator(); iterator.hasNext();)
 			{
 				Field field = (Field) iterator.next();
+				if (field.getName().equals("__Type"))
+					continue; // skip fields which are internal to Molgenis
+
 				if (existInSuper(field, entity))
 					continue; // need this for skipping also interface
 								// attributes... othewriwse getLocalFields could
 								// have been used
 
 				int minCardinality = field.isNillable() ? 0 : 1;
-
+				String end1Name = field.getName();
 				if (field.getType() instanceof MrefField || field.getType() instanceof XrefField)
 				{
 
@@ -259,17 +299,20 @@ public class MolgenisToUml
 						// mref_localid=Test,
 						// qmref_remoteid=Sample_id, xref_label='Name',
 						// auto=false, nillable=false, readonly=false, default=)
-						// Create name for other end. TODO:  Add option for adding intermediating classes
-						String end2Name = uncapitalize(field.getMrefLocalid()) + "For" + capitalize(field.getLabel());
+						// Create name for other end. TODO: Add option for
+						// adding intermediating classes
+						// String end2Name =
+						// uncapitalize(field.getMrefLocalid()) + "For" +
+						// capitalize(field.getLabel());
+						String end2Name = field.getMrefLocalid();
 						int maxCardinality = LiteralUnlimitedNatural.UNLIMITED;
 						int maxEnd2Cardinality = LiteralUnlimitedNatural.UNLIMITED;
 
-						Association asso = uml2.createAssociation(cls, true, AggregationKind.NONE_LITERAL,
-								field.getLabel(), minCardinality, maxCardinality, end2Class, true,
-								AggregationKind.NONE_LITERAL, end2Name, 0, maxEnd2Cardinality);
-						asso.setName(entity.getName()+"_"+end2Class.getName());
+						Association asso = uml2.createAssociation(cls, true, AggregationKind.NONE_LITERAL, end1Name,
+								minCardinality, maxCardinality, end2Class, true, AggregationKind.NONE_LITERAL,
+								end2Name, 0, maxEnd2Cardinality);
+						asso.setName(entity.getName() + "_" + end2Class.getName()); //todo: check and refactor
 						annotate(asso, field);
-						// asso.setName(field.getMrefName());
 
 					} else
 					{
@@ -278,12 +321,12 @@ public class MolgenisToUml
 								: 1;
 						int maxEnd2Cardinality = LiteralUnlimitedNatural.UNLIMITED;
 						String end2Name = "";
-						Association asso = uml2.createAssociation(cls, true, AggregationKind.NONE_LITERAL,
-								field.getLabel(), minCardinality, maxCardinality, end2Class, false,
-								AggregationKind.NONE_LITERAL, end2Name, 0, maxEnd2Cardinality);
+						Association asso = uml2.createAssociation(cls, true, AggregationKind.NONE_LITERAL, end1Name,
+								minCardinality, maxCardinality, end2Class, false, AggregationKind.NONE_LITERAL,
+								end2Name, 0, maxEnd2Cardinality);
 						annotate(asso, field);
-						asso.setName(entity.getName()+"_"+end2Class.getName());
-						// asso.setName(field.getName());
+						asso.setName(entity.getName() + "_" + end2Class.getName());//todo: check and refactor
+
 					}
 				} else
 				{
@@ -297,6 +340,7 @@ public class MolgenisToUml
 						type = uml2.createPrimitiveType(container, field.getType().getXsdType());
 					}
 					Property attr = uml2.createAttribute(cls, field.getName(), type, minCardinality, 1);
+					attr.setIsUnique( field.isUnique());
 					if (hasText(field.getDescription()))
 					{
 						annotate(attr, field);
@@ -315,16 +359,17 @@ public class MolgenisToUml
 	/*
 	 * Utility methods
 	 */
-	public static final String uncapitalize( final String originalStr)
+	public static final String uncapitalize(final String originalStr)
 	{
-		return xcapitalize(originalStr,true, new Locale("en", "US"));
-	}
-	public static final String capitalize( final String originalStr)
-	{
-		return xcapitalize(originalStr,false, new Locale("en", "US"));
+		return xcapitalize(originalStr, true, new Locale("en", "US"));
 	}
 
-	public static final String xcapitalize( final String originalStr, boolean uncap, final Locale locale)
+	public static final String capitalize(final String originalStr)
+	{
+		return xcapitalize(originalStr, false, new Locale("en", "US"));
+	}
+
+	public static final String xcapitalize(final String originalStr, boolean uncap, final Locale locale)
 	{
 		final int splitIndex = 1;
 		final String result;
@@ -333,7 +378,8 @@ public class MolgenisToUml
 			result = originalStr;
 		} else
 		{
-			final String first = uncap ? originalStr.substring(0, splitIndex).toLowerCase(locale) : originalStr.substring(0, splitIndex).toUpperCase(locale);
+			final String first = uncap ? originalStr.substring(0, splitIndex).toLowerCase(locale) : originalStr
+					.substring(0, splitIndex).toUpperCase(locale);
 			final String rest = originalStr.substring(splitIndex);
 			final StringBuilder uncapStr = new StringBuilder(first).append(rest);
 			result = uncapStr.toString();
@@ -341,17 +387,17 @@ public class MolgenisToUml
 		return result;
 	}
 
-	protected String uniqueName( final Entity entity)
+	protected String uniqueName(final Entity entity)
 	{
 		return entity.getNamespace() + "/" + entity.getName();
 	}
 
-	protected boolean hasText( final String str)
+	protected boolean hasText(final String str)
 	{
 		return str != null && str.trim().equals("");
 	}
 
-	protected String harmonizeString( final String a)
+	protected String harmonizeString(final String a)
 	{
 		if (a == null)
 			return "";
@@ -359,7 +405,7 @@ public class MolgenisToUml
 		return _a;
 	}
 
-	private boolean existInSuper( final Field field, final Entity entity)
+	private boolean existInSuper(final Field field, final Entity entity)
 	{
 		boolean ex = false;
 

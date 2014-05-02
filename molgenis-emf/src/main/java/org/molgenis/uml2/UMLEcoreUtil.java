@@ -44,6 +44,7 @@ import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.uml2.uml.util.UMLUtil;
+import org.eclipse.uml2.uml.util.UMLUtil.UML2EcoreConverter;
 import org.eclipselabs.emfjson.EMFJs;
 import org.eclipselabs.emfjson.resource.JsResourceFactoryImpl;
 
@@ -354,6 +355,10 @@ public class UMLEcoreUtil
 	public Collection<EPackage> convertToEcorePackageCollection(final org.eclipse.uml2.uml.Package package_)
 	{
 		Map<String, String> prop = new HashMap<String, String>();
+		prop.put(UML2EcoreConverter.OPTION__COMMENTS, UMLUtil.OPTION__PROCESS);
+		prop.put(UML2EcoreConverter.OPTION__ANNOTATION_DETAILS, UMLUtil.OPTION__PROCESS);
+		prop.put(UML2EcoreConverter.OPTION__DUPLICATE_FEATURE_INHERITANCE, UMLUtil.OPTION__DISCARD); //todo: check these
+		prop.put(UML2EcoreConverter.OPTION__DUPLICATE_FEATURES, UMLUtil.OPTION__REPORT);
 		Collection<EPackage> xe = org.eclipse.uml2.uml.util.UMLUtil.convertToEcore(package_, prop);
 		return xe;
 	}

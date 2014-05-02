@@ -27,7 +27,7 @@
 
 	<entity name="Test" implements="Identifiable" xref_label="Name">
 		<description>This class has Mref to Sample</description>
-		<field name="Sample_id" label="samplesUsed" type="mref" xref_entity="Sample" xref_field="Id" xref_label="Name" description="testing the mref"></field>
+		<field name="Sample" nillable="false" label="samplesUsed" type="mref" xref_entity="Sample" xref_field="Id" xref_label="Name" description="testing the mref"></field>
 	</entity>
 
 	<!-- sample description structure -->
@@ -37,21 +37,21 @@
 		<field name="Species" default="Arabidopsis thaliana" description="Species, default to Arabidopsis"></field>
 		<field name="Tissue" nillable="true" description="Optional specification of tissue"></field>
 		<field name="Sex" type="enum" enum_options="[male,female,unknown]" description="Fixed choice on Sex"></field>
-		<field name="Experiment" type="xref" label="sampleExperiment" xref_field="Experiment.Id" description="Samples are part-of one experiment (by cross reference to Experiment.id)"></field>
+		<field name="Experiment" type="xref" nillable="false" label="sampleExperiment" xref_entity="Experiment" xref_field="Id" description="Samples are part-of one experiment (by cross reference to Experiment.id)"></field>
 		<field name="SampleTime" type="datetime"></field>
 	</entity>
 	
 	<entity name="SpecialSample" extends="Sample">
 		<field name="detail"></field>
-		<field name="Parent_Id" label="parent" type="mref" xref_entity="SpecialSample" xref_field="Id" xref_label="Id" description="testing the mref"></field>
+		<field name="Parent" label="parent" type="mref" xref_entity="SpecialSample" xref_field="Id" xref_label="Id" description="testing the mref"></field>
 	</entity>
 	
 	<!-- trait description structure -->
 	<entity name="Trait" implements="Identifiable">
 		<description>Traits that are studied in this experiment.
 		</description>
-		<field name="Molecular" type="bool" description="Indication whether this is a molecular trait"></field>
-		<field name="Experiment" type="xref" xref_field="Experiment.Id" xref_label="Name" description="Traits are defined per experiment (by cross reference to Experiment.id)"></field>
+		<field name="Molecular" type="bool" nillable="false"  description="Indication whether this is a molecular trait"></field>
+		<field name="Experiment" type="xref" nillable="true" xref_field="Experiment.Id" xref_label="Name" description="Traits are defined per experiment (by cross reference to Experiment.id)"></field>
 	</entity>
 
 </molgenis>
